@@ -50,6 +50,7 @@ def lens_fourier(u1, x1, y1, f, lmbd=500e-9):
 
     return u2, x2, y2
 
+
 def slm_ramp(u1, x1, y1, vx, vy, lmbd=500e-9):
     """
     Function to simulate SLM with linear ramp
@@ -84,3 +85,47 @@ def slm_ramp(u1, x1, y1, vx, vy, lmbd=500e-9):
     y2 = y1
 
     return u2, x2, y2
+
+
+def lens_quadratic(u1, x1, y1, P, lmbd=500e-9):
+    """
+    Function to simulate lens as a quadratic phase shift
+    in the same plane
+
+    Parameters:
+    u1 : np.nddarray
+    Input field
+    x1 : np.ndarray
+    x coords of input field, uniformly distributed
+    y1 : np.ndarray
+    y coords of input field, uniformly distributed
+    P : float
+    power of lens
+
+    Returns:
+    u2 : np.nddarray
+    Output field
+    x2 : np.ndarray
+    x coords of output field, uniformly distributed
+    y2 : np.ndarray
+    y coords of output field, uniformly distributed
+    """
+
+    # Multiply by quadratic phase
+    quad_phase = np.exp(1j*(np.pi*P/lmbd)*(x1**2+y1**2))
+    u2 = u1*quad_phase
+
+    # x and y coords
+    x2 = x1
+    y2 = y1
+
+    return u2, x2, y2
+
+
+if __name__ == "__main__":
+    ### Test lens_fourier func ###
+    pass
+    ### Test slm_ramp func ###
+    pass
+    ### Test lens_quadratic func ###
+    pass
