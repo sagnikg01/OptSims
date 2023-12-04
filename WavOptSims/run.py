@@ -63,6 +63,8 @@ def parse_args():
                         help='y-slope of phase ramp')
     parser.add_argument('--iters', type=int, default=10,
                         help='Number of iters')
+    parser.add_argument('--aprtr_ln', type=float,
+                        default=10e-3, help='Aperture length')
 
     args = parser.parse_args()
 
@@ -85,7 +87,7 @@ if __name__ == "__main__":
     y1 = -args.W1/2 + args.W1/(2*args.N) + args.W1*ny/args.N
 
     # Create fovDisp system
-    fovDispSys = fovDispV1(args.f, args.P, args.lmbd)
+    fovDispSys = fovDispV1(args.f, args.P, args.aprtr_ln, args.lmbd)
 
     # Run input through fovDisp
     im_out, x_out, y_out = run_system(u1, x1, y1, fovDispSys, args)
