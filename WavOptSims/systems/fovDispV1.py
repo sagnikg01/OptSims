@@ -22,7 +22,7 @@ class fovDispV1:
         self.P = P
         self.lmbd = lmbd
 
-    def forward(self, u1, x1, y1, vx, vy):
+    def forward(self, u1, x1, y1, vx, vy, debug=False):
         """
         Function to pass input field through
         FovDisp system
@@ -75,12 +75,14 @@ class fovDispV1:
         # Lens 4
         u8, x8, y8 = lens_fourier(u7, x7, y7, self.f, self.lmbd)
 
-        # Results for Vizualization
-        U = {"before_slm": u4,
-             "output": u8}
-        X = {"before_slm": x4,
-             "output": x8}
-        Y = {"before_slm": y4,
-             "output": y8}
+        if debug:
+          U = {"before_slm": u4,
+               "output": u8}
+          X = {"before_slm": x4,
+               "output": x8}
+          Y = {"before_slm": y4,
+               "output": y8}
 
-        return U, X, Y
+          return U, X, Y
+        
+        return u8, x8, y8
