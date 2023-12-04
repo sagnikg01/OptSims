@@ -76,13 +76,13 @@ class fovDispV1:
         u8, x8, y8 = lens_fourier(u7, x7, y7, self.f, self.lmbd)
 
         if debug:
-          U = {"before_slm": u4,
-               "output": u8}
-          X = {"before_slm": x4,
-               "output": x8}
-          Y = {"before_slm": y4,
-               "output": y8}
+            U = {"before_slm": u4,
+                 "output": u8}
+            X = {"before_slm": x4,
+                 "output": x8}
+            Y = {"before_slm": y4,
+                 "output": y8}
 
-          return U, X, Y
-        
+            return U, X, Y
+
         return u8, x8, y8
