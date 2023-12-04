@@ -17,10 +17,11 @@ class fovDispV1:
     Quadratic phase power
     """
 
-    def __init__(self, f, P, lmbd):
+    def __init__(self, f, P, aprtr_ln, lmbd):
         self.f = f
         self.P = P
         self.lmbd = lmbd
+        self.aprtr_ln = aprtr_ln
 
     def forward(self, u1, x1, y1, vx, vy, debug=False):
         """
@@ -56,21 +57,27 @@ class fovDispV1:
 
         # Lens 1
         u2, x2, y2 = lens_fourier(u1, x1, y1, self.f, self.lmbd)
+        u2[x2**2+y2**2 > self.aprtr_ln] = 0
 
         # Quadratic Phase
         u3, x3, y3 = lens_quadratic(u2, x2, y2, self.P, self.lmbd)
+        u3[x3**2+y3**2 > self.aprtr_ln] = 0
 
         # Lens 2
         u4, x4, y4 = lens_fourier(u3, x3, y3, self.f, self.lmbd)
+        u4[x4**2+y4**2 > self.aprtr_ln] = 0
 
         # SLM Phase Ramp
         u5, x5, y5 = slm_ramp(u4, x4, y4, vx, vy, self.lmbd)
+        u5[x5**2+y5**2 > self.aprtr_ln] = 0
 
         # Lens 3
         u6, x6, y6 = lens_fourier(u5, x5, y5, self.f, self.lmbd)
+        u6[x6**2+y6**2 > self.aprtr_ln] = 0
 
         # Quadratic Phase
         u7, x7, y7 = lens_quadratic(u6, x6, y6, -self.P, self.lmbd)
+        u7[x7**2+y7**2 > self.aprtr_ln] = 0
 
         # Lens 4
         u8, x8, y8 = lens_fourier(u7, x7, y7, self.f, self.lmbd)
