@@ -121,6 +121,39 @@ def lens_quadratic(u1, x1, y1, P, lmbd=500e-9):
 
     return u2, x2, y2
 
+def fresnel_prop(u1, x1, y1, z, lmbd=500e-9):
+    """
+    Function to simulate Fresnel propagation
+
+    Parameters:
+    u1 : np.nddarray
+    Input field
+    x1 : np.ndarray
+    x coords of input field, uniformly distributed
+    y1 : np.ndarray
+    y coords of input field, uniformly distributed
+    z : float
+    distance of propagation
+
+    Returns:
+    u2 : np.nddarray
+    Output field
+    x2 : np.ndarray
+    x coords of output field, uniformly distributed
+    y2 : np.ndarray
+    y coords of output field, uniformly distributed
+    """
+
+    # Compute fourier transform
+    phase_fact = np.exp(1j*(2*np.pi)*(x1**2+y1**2)*(1/(2*lmbd*z)))
+    u2, x2, y2 = lens_fourier(u1*phase_fact, x1, y1, z, lmbd)
+
+    # Multiply by remaining constant
+    u2 = u2*(-1j)*np.exp(1j*2*np.pi*z/lmbd)*np.exp(1j*(2*np.pi)*(x2**2+y2**2)*(1/(2*lmbd*z)))
+
+    return u2, x2, y2
+
+
 
 if __name__ == "__main__":
     ### Test lens_fourier func ###
