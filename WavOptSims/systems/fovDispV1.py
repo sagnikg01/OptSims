@@ -1,6 +1,6 @@
 import numpy as np
 
-from utils import lens_fourier, slm_ramp, lens_quadratic
+from utils import lens_fourier, slm_ramp, lens_quadratic, fresnel_prop
 
 
 class fovDispV1:
@@ -15,13 +15,24 @@ class fovDispV1:
     Focal length of all lenses
     P : float
     Quadratic phase power
+    aprtr_ln : float
+    Aperture length
+    f_ep : float
+    Eyepiece focal length
+    eye_dist : float
+    Distance b/w eyepiece and eye
+    f_e : float
+    Eye focal length
     """
 
-    def __init__(self, f, P, aprtr_ln, lmbd):
+    def __init__(self, f, P, aprtr_ln, f_ep, eye_dist, f_e, lmbd):
         self.f = f
         self.P = P
         self.lmbd = lmbd
         self.aprtr_ln = aprtr_ln
+        self.f_ep = f_ep
+        self.eye_dist = eye_dist
+        self.f_e = f_e
 
     def forward(self, u1, x1, y1, vx, vy, debug=False):
         """
@@ -82,14 +93,32 @@ class fovDispV1:
         # Lens 4
         u8, x8, y8 = lens_fourier(u7, x7, y7, self.f, self.lmbd)
 
+        # Propagate to eyepiece
+        u9, x9, y9 = fresnel_prop(u8, x8, y8, self.f_ep, self.lmbd)
+
+        # Eyepice
+        u10, x10, y10 = lens_quadratic(u9, x9, y9, self.f_ep, self.lmbd)
+
+        # Propagate to eye
+        u11, x11, y11 = fresnel_prop(u10, x10, y10. self.eye_dist, self.lmbd)
+
+        # Eye lens
+        u12, x12, y12 = lens_quadratic(u11, x11, y11, self.f_e, self.lmbd)
+
+        # Propagate to eye
+        u13, x13, y13 = fresnel_prop(u12, x12, y12, self.f_e, self.lmbd)
+
         if debug:
             U = {"before_slm": u4,
-                 "output": u8}
+                 "output": u8,
+                 "eye": u13}
             X = {"before_slm": x4,
-                 "output": x8}
+                 "output": x8,
+                 "eye": x13}
             Y = {"before_slm": y4,
-                 "output": y8}
+                 "output": y8,
+                 "eye": y13}
 
             return U, X, Y
 
-        return u8, x8, y8
+        return u13, x13, y13
