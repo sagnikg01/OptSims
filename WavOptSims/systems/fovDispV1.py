@@ -100,7 +100,7 @@ class fovDispV1:
         u10, x10, y10 = lens_quadratic(u9, x9, y9, self.f_ep, self.lmbd)
 
         # Propagate to eye
-        u11, x11, y11 = fresnel_prop(u10, x10, y10. self.eye_dist, self.lmbd)
+        u11, x11, y11 = fresnel_prop(u10, x10, y10, self.eye_dist, self.lmbd)
 
         # Eye lens
         u12, x12, y12 = lens_quadratic(u11, x11, y11, self.f_e, self.lmbd)
