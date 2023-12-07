@@ -46,14 +46,14 @@ def parse_args():
 
     parser.add_argument('--impath', type=str,
                         default='data/cameraman.jpg', help='Input image path')
-    parser.add_argument('--fovsize', type=int, default=256,
+    parser.add_argument('--fovsize', type=int, default=512,
                         help='Fovea size in pixels')
     parser.add_argument('--N', type=int, default=2000,
                         help='Number of samples')
     parser.add_argument('--W1', type=float, default=10e-3,
                         help='Width of input in meters')
     parser.add_argument('--f', type=float, default=100e-3, help='Focal length')
-    parser.add_argument('--P', type=float, default=1/(100e-3),
+    parser.add_argument('--P', type=float, default=1/(50e-3),
                         help='Power of quadratic phase')
     parser.add_argument('--lmbd', type=float,
                         default=500e-9, help='Wavelength')
@@ -64,7 +64,13 @@ def parse_args():
     parser.add_argument('--iters', type=int, default=10,
                         help='Number of iters')
     parser.add_argument('--aprtr_ln', type=float,
-                        default=10e-3, help='Aperture length')
+                        default=12.5e-3, help='Aperture length')
+    parser.add_argument('--f_ep', type=float,
+                        default=35e-3, help='eyepiece focal length')
+    parser.add_argument('--eye_dist', type=float,
+                        default=25e-3, help='dist b/w eyepeice & eye')
+    parser.add_argument('--f_e', type=float,
+                        default=25e-3, help='eye focal length')
 
     args = parser.parse_args()
 
@@ -80,6 +86,7 @@ if __name__ == "__main__":
     u1 = plt.imread(args.impath)[:, :, 0]/255
     u1 = cv2.resize(u1, (args.fovsize, args.fovsize))
     u1 = np.pad(u1, (args.N-args.fovsize)//2)
+    u1 = np.sqrt(u1)
     nx = np.arange(args.N)
     ny = np.arange(args.N)
     nx, ny = np.meshgrid(nx, ny)
@@ -87,7 +94,7 @@ if __name__ == "__main__":
     y1 = -args.W1/2 + args.W1/(2*args.N) + args.W1*ny/args.N
 
     # Create fovDisp system
-    fovDispSys = fovDispV1(args.f, args.P, args.aprtr_ln, args.lmbd)
+    fovDispSys = fovDispV1(args.f, args.P, args.aprtr_ln, args.f_ep, args.eye_dist, args.f_e, args.lmbd)
 
     # Run input through fovDisp
     im_out, x_out, y_out = run_system(u1, x1, y1, fovDispSys, args)
@@ -95,3 +102,7 @@ if __name__ == "__main__":
     # Visualize output
     plt.imshow(im_out, cmap="gray")
     plt.show()
+    # plt.imsave("out1.png", im_out)
+    # print(np.mean(im_out))
+    # print(np.mean(np.abs(u1)**2))
+
