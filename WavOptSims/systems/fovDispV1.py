@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm
 
 from utils import lens_fourier, slm_ramp, lens_quadratic, fresnel_prop
 
@@ -25,14 +26,14 @@ class fovDispV1:
     Eye focal length
     """
 
-    def __init__(self, f, P, aprtr_ln, f_ep, eye_dist, f_e, lmbd):
-        self.f = f
-        self.P = P
-        self.lmbd = lmbd
-        self.aprtr_ln = aprtr_ln
-        self.f_ep = f_ep
-        self.eye_dist = eye_dist
-        self.f_e = f_e
+    def __init__(self, args):
+        self.f = args.f
+        self.P = args.P
+        self.lmbd = args.lmbd
+        self.aprtr_ln = args.aprtr_ln
+        self.f_ep = args.f_ep
+        self.eye_dist = args.eye_dist
+        self.f_e = args.f_e
 
     def forward(self, u1, x1, y1, vx, vy, debug=False):
         """
@@ -71,7 +72,7 @@ class fovDispV1:
         u2[x2**2+y2**2 > self.aprtr_ln] = 0
 
         # Quadratic Phase
-        u3, x3, y3 = lens_quadratic(u2, x2, y2, self.P, self.lmbd)
+        u3, x3, y3 = lens_quadratic(u2, x2, y2, 1/self.P, self.lmbd)
         u3[x3**2+y3**2 > self.aprtr_ln] = 0
 
         # Lens 2
@@ -87,7 +88,7 @@ class fovDispV1:
         u6[x6**2+y6**2 > self.aprtr_ln] = 0
 
         # Quadratic Phase
-        u7, x7, y7 = lens_quadratic(u6, x6, y6, -self.P, self.lmbd)
+        u7, x7, y7 = lens_quadratic(u6, x6, y6, -1/self.P, self.lmbd)
         u7[x7**2+y7**2 > self.aprtr_ln] = 0
 
         # Lens 4
@@ -121,4 +122,35 @@ class fovDispV1:
 
             return U, X, Y
 
-        return u13, x13, y13
+        return u8, x8, y8
+    
+    def run(self, u1, x1, y1, args):
+        """
+        Run system multiple times with random input phase
+        to mitigate interference effects
+
+        u1 : np.nddarray
+        Input field
+        x1 : np.ndarray
+        x coords of input field, uniformly distributed
+        y1 : np.ndarray
+        y coords of input field, uniformly distributed
+
+        Return:
+        im_out : np.ndarray
+        Magnitude of output field
+        x_out : np.ndarray
+        x coords of output field, uniformly distributed
+        y_out : np.ndarray
+        y coords of output field, uniformly distributed
+        """
+
+        im_out = np.zeros_like(u1, dtype=np.float64)
+
+        for i in tqdm(range(args.iters)):
+            u_out, x_out, y_out = self.forward(u1, x1, y1, args.vx, args.vy)
+            im_out += np.abs(u_out)**2
+
+        im_out = im_out/args.iters
+
+        return im_out, x_out, y_out
