@@ -239,7 +239,7 @@ def fresnel_prop(u1, x1, y1, z, lmbd=500e-9):
 
     flag = (dx >= lmbd*z/L)
 
-    if not flag:
+    if flag:
         return fresnel_prop_tf(u1, x1, y1, z, lmbd=500e-9)
     else:
         return fresnel_prop_ir(u1, x1, y1, z, lmbd=500e-9)
