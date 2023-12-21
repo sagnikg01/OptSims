@@ -91,7 +91,7 @@ def slm_ramp(u1, x1, y1, vx, vy, lmbd=500e-9):
     return u2, x2, y2
 
 
-def lens_quadratic(u1, x1, y1, P, lmbd=500e-9):
+def lens_quadratic(u1, x1, y1, f, lmbd=500e-9):
     """
     Function to simulate lens as a quadratic phase shift
     in the same plane
@@ -103,8 +103,8 @@ def lens_quadratic(u1, x1, y1, P, lmbd=500e-9):
     x coords of input field, uniformly distributed
     y1 : np.ndarray
     y coords of input field, uniformly distributed
-    P : float
-    power of lens
+    f : float
+    focal length of lens
 
     Returns:
     u2 : np.nddarray
@@ -116,7 +116,7 @@ def lens_quadratic(u1, x1, y1, P, lmbd=500e-9):
     """
 
     # Multiply by quadratic phase
-    quad_phase = np.exp(-1j*(np.pi*P/lmbd)*(x1**2+y1**2))
+    quad_phase = np.exp(-1j*(np.pi/(lmbd*f))*(x1**2+y1**2))
     u2 = u1*quad_phase
 
     # x and y coords
@@ -199,11 +199,11 @@ def fresnel_prop_ir(u1, x1, y1, z, lmbd=500e-9):
     k = 2*np.pi/lmbd # Wavenumber
 
     # Spatial coords
-    x = np.arange(-L/2,L/2,dx)
-    X, Y = np.meshgrid(x,x)
+    #x = np.arange(-L/2,L/2,dx)
+    X, Y = x1, y1
 
     # Impulse response
-    h = 1/(1j*lmbd*z)*np.exp(1j*k/(2*z)*(X**2+Y**2))
+    h = (1/(1j*lmbd*z))*np.exp(1j*(k/(2*z))*(x1**2+y1**2))
     H = np.fft.fft2(np.fft.fftshift(h))*dx**2
     U1 = np.fft.fft2(np.fft.fftshift(u1))
     U2 = H*U1
